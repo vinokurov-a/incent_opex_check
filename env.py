@@ -153,7 +153,7 @@ def insert_rows_into_rs(df,table_name,schema_name):
 
 # Функция, генерирующая запрос insert into и вставляющая данные в Redshift
 def insert_table_into_rs(df,table_name,schema_name, batch_size):
-    st = datetime.datetime.now()
+    st = datetime.now()
     for i in range(int(len(df)/batch_size)+1):
         if (i+1)*batch_size<len(df):
             insert_rows_into_rs(df.iloc[i*batch_size:(i+1)*batch_size], table_name, schema_name)
@@ -161,7 +161,7 @@ def insert_table_into_rs(df,table_name,schema_name, batch_size):
         else:
             insert_rows_into_rs(df.iloc[i*batch_size:len(df)], table_name, schema_name)
             print(str(len(df)), ' rows are inserted')
-    print('Time taken to insert data into Redshift table ', str(table_name), ' = ', str(datetime.datetime.now() - st).split(".")[0])
+    print('Time taken to insert data into Redshift table ', str(table_name), ' = ', str(datetime.now() - st).split(".")[0])
 
 def reduce_mem_usage(df):
     """ iterate through all the columns of a dataframe and modify the data type

@@ -3,6 +3,7 @@
 ## ma_data.incent_opex_check_universal
 
 Универсальная таблица для хранения результатов всех проверок OpEx. Каждая строка представляет одну проверку (алерт) для конкретной комбинации измерений.
+Таблица располагается в базе данных Amazon RedShift.
 
 ### Структура таблицы
 
@@ -62,7 +63,6 @@
 - `reference_value` — пороговое значение (threshold)
 - `reference_value_ci` — `NULL` (не применимо для threshold-based проверок)
 - `change_perc` — насколько ниже порога: `(current - threshold) / threshold`
-- `partner_name` не записывается в БД, получается из конфигурации по `partner_id`
 
 #### Шаблон для новых проверок
 | Проверка | partner_id | app_short | country | segment | slice1 | slice2 |

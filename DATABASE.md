@@ -23,6 +23,7 @@
 | `reference_value` | FLOAT | Эталонное (reference) значение для сравнения |
 | `reference_value_ci` | FLOAT | Ширина доверительного интервала для reference-значения |
 | `change_perc` | FLOAT | Относительное изменение: `(current_value - reference_value) / reference_value` |
+| `alert_category` | VARCHAR(50) | Категория алерта (`WARNING`, `CRITICAL`, `NULL` если не применимо) |
 | `is_alert` | BOOLEAN | Флаг срабатывания алерта (`TRUE` если current_value вне диапазона reference ± ci) |
 
 ### Использование полей slice1-slice4
@@ -45,7 +46,8 @@
 | `slice1` | `partner_id` — ID партнёра |
 | `slice2` | `operation_segment_nm` — название сегмента оперирования |
 | `slice3` | `partner_name` — название партнёра |
-| `slice4` | `alert_type` — тип алерта (`WARNING`, `CRITICAL`) |
+| `slice4` | Не используется (`NULL`) |
+| `alert_category` | `WARNING` или `CRITICAL` |
 
 **Примечание для 02-incent.p7:**
 - `current_value` — количество плательщиков (за 1 или 4 недели)
@@ -88,6 +90,7 @@ CREATE TABLE IF NOT EXISTS ma_data.incent_opex_check_universal (
     reference_value FLOAT,
     reference_value_ci FLOAT,
     change_perc FLOAT,
+    alert_category VARCHAR(50),
     is_alert BOOLEAN
 );
 
@@ -113,6 +116,7 @@ current_value        | 0.42
 reference_value      | 0.50
 reference_value_ci   | 0.03
 change_perc          | -0.16
+alert_category       | NULL
 is_alert             | TRUE
 ```
 
@@ -126,13 +130,14 @@ store                | NULL
 slice1               | 1000023
 slice2               | MySegment_US
 slice3               | AdJoe
-slice4               | WARNING
+slice4               | NULL
 cohort_date          | 2026-01-30
 metric_crit_category | WARNING
 current_value        | 3
 reference_value      | 5
 reference_value_ci   | NULL
 change_perc          | -0.40
+alert_category       | WARNING
 is_alert             | TRUE
 ```
 

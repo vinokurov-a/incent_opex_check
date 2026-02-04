@@ -337,8 +337,8 @@ def get_alert_type(payers_1w, payers_4w):
 | `reference_value` | Пороговое значение (threshold) |
 | `reference_value_ci` | `NULL` (не применимо) |
 | `change_perc` | `(current - threshold) / threshold` |
-| `alert_category` | `WARNING` / `CRITICAL` / `NULL` |
 | `is_alert` | `TRUE` / `FALSE` |
+| `alert_category` | `WARNING` / `CRITICAL` / `NULL` |
 
 ### Условия алертов
 

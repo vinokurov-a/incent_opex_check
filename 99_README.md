@@ -23,14 +23,14 @@ SELECT *
 FROM ma_data.incent_opex_check_universal
 WHERE date::DATE = '{today}'
   AND is_alert = TRUE
-ORDER BY check_name, app, store
+ORDER BY check_name, app_short, country, segment
 ```
 
 ## Формат нотификаций
 
 ### 01-incent.cr (Conversion Rate)
 
-**Группировка:** по `app` + `store`
+**Группировка:** по `app_short`
 
 **Основное сообщение (в канал):**
 ```
@@ -56,13 +56,33 @@ INCENT.OpEx - 02-incent.p7 (INFO): 🔴 *AdJoe*
 🟡 [WARNING] SOLITAIRE / Segment_B: 8 payers (1 нед., threshold: 10)
 ```
 
+### 03-incent.metrics (Операционные метрики)
+
+**Группировка:** по `partner_id` + группа метрик (CPB, C2P, Retention)
+
+**Группы метрик:**
+- **CPB**: cpb3, cpb7
+- **C2P**: c2p3, c2p7
+- **Retention**: ret3, ret7
+
+**Основное сообщение (в канал):**
+```
+INCENT.OpEx - 03-incent.metrics (INFO), CPB: 🔴 *AdJoe*
+```
+
+**Thread (детали по app, country, segment):**
+```
+🔺 FD | ALL | Segment_US | cpb3: $12.50 (+15.2%)
+🔻 FD | US | Segment_US | cpb7: $14.30 (-8.1%)
+```
+
 ## Иконки
 
 | Тип | Иконка | Использование |
 |-----|--------|---------------|
-| CR вверх | 🔺 `:green_triangle_up_alert:` | Рост CR |
-| CR вниз | 🔻 `:red_triangle_down_alert:` | Падение CR |
-| CRITICAL | 🔴 `:red_circle:` | Критический алерт payers |
+| Метрика вверх | 🔺 `:green_triangle_up_alert:` | Рост метрики |
+| Метрика вниз | 🔻 `:red_triangle_down_alert:` | Падение метрики |
+| CRITICAL | 🔴 `:red_circle:` | Критический алерт / заголовок metrics |
 | WARNING | 🟡 `:large_yellow_circle:` | Предупреждение payers |
 
 ## Поле `notification_flag`
@@ -77,6 +97,6 @@ INCENT.OpEx - 02-incent.p7 (INFO): 🔴 *AdJoe*
 1. Создайте функцию `send_<check>_notifications(alerts_df, config_row)` в ноутбуке
 2. Добавьте вызов в основной цикл:
 ```python
-elif check_name == '03-incent.ltv':
+elif check_name == '04-incent.ltv':
     send_ltv_notifications(check_alerts, config_row)
 ```

@@ -103,11 +103,14 @@ is_alert = (current_value < reference_value - ci) OR
            (current_value > reference_value + ci)
 ```
 
-### 4. Фильтрация по threshold_fixed
+### 4. Фильтрация по threshold
 
-Срезы игнорируются, если за current период (3 дня):
-- **cpb, c2p:** число payers < `threshold_fixed`
-- **ret:** число active_users < `threshold_fixed`
+Срезы игнорируются, если **в любом из периодов** (current ИЛИ reference) не выполняются условия:
+
+| Параметр | Условие |
+|----------|---------|
+| `threshold_installs` | installs >= threshold в обоих периодах |
+| `threshold_fixed` | payers >= threshold (cpb, c2p) или active_users >= threshold (ret) в обоих периодах |
 
 ### 5. Срезы данных
 

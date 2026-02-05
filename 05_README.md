@@ -1,18 +1,18 @@
 
-# 03-incent.cpb
+# 05-incent.ret
 
-Мониторинг стоимости привлечения плательщика (Cost Per Buyer) для incent-партнёров.
+Мониторинг Retention для incent-партнёров.
 
 ## Назначение
 
 | Ноутбук | Конфиг (name) | Метрики |
 |---------|---------------|---------|
-| `03-incent.opex.check_cpb.ipynb` | `03-incent.cpb` | cpb3, cpb7 |
+| `05-incent.opex.check_ret.ipynb` | `05-incent.ret` | ret3, ret7 |
 
 | Метрика | Описание | Формула |
 |---------|----------|---------|
-| **cpb3** | Стоимость привлечения плательщика (3 дня) | spend / payers_3 |
-| **cpb7** | Стоимость привлечения плательщика (7 дней) | spend / payers_7 |
+| **ret3** | Retention (3 дня) | active_users_3 / installs |
+| **ret7** | Retention (7 дней) | active_users_7 / installs |
 
 Алерт срабатывает при статистически значимом отклонении от reference-периода.
 
@@ -20,7 +20,7 @@
 
 ```sql
 SELECT app_short, partner_id, operation_segment_nm, country_cd, install_dt,
-       spend_discounted_usd_amt, payers_3_cnt, payers_7_cnt, installs_cnt
+       installs_cnt, user_activity_3_cnt, user_activity_7_cnt
 FROM core.base_metrics
 WHERE partner_id IN (...)
   AND install_dt BETWEEN '...' AND '...'
@@ -28,14 +28,14 @@ WHERE partner_id IN (...)
 
 ## Входные параметры
 
-### Из Google Sheet (строка с `name = "03-incent.cpb"`)
+### Из Google Sheet (строка с `name = "05-incent.ret"`)
 
 | Параметр | Поле в Sheet | Описание |
 |----------|--------------|----------|
 | Активность | `active_flag` | `Enabled` / `Disabled` |
 | Кол-во сигм | `n_sigmas` | Количество сигм для CI (рекомендуется 2.5) |
 | Мин. инсталлов | `threshold_installs` | Минимум инсталлов для анализа |
-| Мин. payers | `threshold_fixed` | Минимум payers в обоих периодах |
+| Мин. active_users | `threshold_fixed` | Минимум active_users в обоих периодах |
 | Категория | `metric_crit_category` | Категория алерта (`INFO`, `WARNING`, `CRITICAL`) |
 | Нотификации | `notification_flag` | Включить Slack-нотификации |
 
@@ -56,19 +56,19 @@ WHERE partner_id IN (...)
 
 | Окно | Current (когорты) | Reference (когорты) |
 |------|-------------------|---------------------|
-| 3d (cpb3) | 3 дня, закрытые 4+ дней назад | 14 дней до current |
-| 7d (cpb7) | 3 дня, закрытые 8+ дней назад | 14 дней до current |
+| 3d (ret3) | 3 дня, закрытые 4+ дней назад | 14 дней до current |
+| 7d (ret7) | 3 дня, закрытые 8+ дней назад | 14 дней до current |
 
 ### 2. Расчёт CI
 
 | Метрика | Тип | Формула CI |
 |---------|-----|------------|
-| cpb3, cpb7 | ratio | `z × value × sqrt((1 + cv²) / n)` |
+| ret3, ret7 | binomial | `z × sqrt(p × (1-p) / n)` |
 
 Где:
 - `z` — количество сигм (n_sigmas из конфига)
-- `cv` — коэффициент вариации (по умолчанию 0.5)
-- `n` — количество payers в reference периоде
+- `p` — reference значение retention
+- `n` — количество installs в reference периоде
 
 ### 3. Логика алертов
 
@@ -84,7 +84,7 @@ is_alert = (current_value < reference_value - ci) OR
 | Параметр | Условие |
 |----------|---------|
 | `threshold_installs` | installs >= threshold в обоих периодах |
-| `threshold_fixed` | payers >= threshold в обоих периодах |
+| `threshold_fixed` | active_users >= threshold в обоих периодах |
 
 ### 5. Срезы данных
 
@@ -96,10 +96,10 @@ is_alert = (current_value < reference_value - ci) OR
 
 | Поле | Значение |
 |------|----------|
-| `check_name` | `03-incent.cpb` |
-| `metric` | `cpb3`, `cpb7` |
-| `current_value` | Текущее значение CPB (USD) |
-| `reference_value` | Reference значение CPB |
+| `check_name` | `05-incent.ret` |
+| `metric` | `ret3`, `ret7` |
+| `current_value` | Текущее значение Retention (доля) |
+| `reference_value` | Reference значение Retention |
 | `reference_value_ci` | Ширина CI |
 | `change_perc` | Относительное изменение |
 | `is_alert` | `TRUE` если выход за CI |
@@ -108,9 +108,9 @@ is_alert = (current_value < reference_value - ci) OR
 ## Slack-нотификации
 
 ```
-INCENT.OpEx - 03-incent.cpb (INFO), CPB: 🔴 *AdJoe*
+INCENT.OpEx - 05-incent.ret (INFO), Retention: 🔴 *AdJoe*
 
 Тред:
-🔺 FD | ALL | Segment_US | cpb3: $12.50 (+15.2%)
-🔻 FD | US | Segment_US | cpb7: $14.30 (-8.1%)
+🔺 FD | ALL | Segment_US | ret3: 45.20% (+3.1%)
+🔻 FD | US | Segment_US | ret7: 32.80% (-6.5%)
 ```

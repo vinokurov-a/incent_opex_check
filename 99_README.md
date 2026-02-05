@@ -56,18 +56,18 @@ INCENT.OpEx - 02-incent.p7 (INFO): 🔴 *AdJoe*
 🟡 [WARNING] SOLITAIRE / Segment_B: 8 payers (1 нед., threshold: 10)
 ```
 
-### 03-incent.metrics (Операционные метрики)
+### 03-incent.cpb / 04-incent.c2p / 05-incent.ret (Операционные метрики)
 
-**Группировка:** по `partner_id` + группа метрик (CPB, C2P, Retention)
+**Группировка:** по `partner_id`
 
-**Группы метрик:**
-- **CPB**: cpb3, cpb7
-- **C2P**: c2p3, c2p7
-- **Retention**: ret3, ret7
+Три отдельных проверки с одинаковым форматом нотификаций:
+- **03-incent.cpb** → CPB (cpb3, cpb7)
+- **04-incent.c2p** → C2P (c2p3, c2p7)
+- **05-incent.ret** → Retention (ret3, ret7)
 
 **Основное сообщение (в канал):**
 ```
-INCENT.OpEx - 03-incent.metrics (INFO), CPB: 🔴 *AdJoe*
+INCENT.OpEx - 03-incent.cpb (INFO), CPB: 🔴 *AdJoe*
 ```
 
 **Thread (детали по app, country, segment):**
@@ -97,6 +97,6 @@ INCENT.OpEx - 03-incent.metrics (INFO), CPB: 🔴 *AdJoe*
 1. Создайте функцию `send_<check>_notifications(alerts_df, config_row)` в ноутбуке
 2. Добавьте вызов в основной цикл:
 ```python
-elif check_name == '04-incent.ltv':
+elif check_name == '06-incent.ltv':
     send_ltv_notifications(check_alerts, config_row)
 ```

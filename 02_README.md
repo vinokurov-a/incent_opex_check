@@ -15,7 +15,7 @@
 | Параметр | Поле в Sheet | Описание |
 |----------|--------------|----------|
 | `ALERT_ACTIVE_FLAG` | `active_flag` | `Enabled` / `Disabled` — включение проверки |
-| `THRESHOLD_WARNING` | `threshold_fixed` | Порог для WARNING (за 1 неделю) |
+| `THRESHOLD_WARNING` | `threshold_conv` | Порог для WARNING (за 1 неделю) |
 | `THRESHOLD_CRITICAL` | `threshold_fixed_crit` | Порог для CRITICAL (за 4 недели) |
 | `ALERT_CATEGORY` | `metric_crit_category` | Категория алерта (например, `INFO`) |
 

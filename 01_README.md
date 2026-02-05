@@ -19,8 +19,11 @@
 | `ALERT_ACTIVE_FLAG` | `active_flag` | `Enabled` / `Disabled` — включение проверки |
 | `N_SIGMAS` | `n_sigmas` | Количество сигм для доверительного интервала (например, 3.0) |
 | `MIN_INSTALLS` | `threshold_installs` | Минимум инсталлов для включения в анализ |
-| `MIN_USERS` | `threshold_fixed` | Минимум юзеров для включения в анализ |
+| `MIN_USERS` | `threshold_conv` | Минимум юзеров для включения в анализ |
 | `ALERT_CATEGORY` | `metric_crit_category` | Категория алерта (например, `INFO`) |
+| `CRITERIA` | `criteria` | Критерий алерта: `ci` (по CI) или `change` (по % изменения) |
+| `THRESHOLD_WARNING_PCT` | `threshold_warning` | Порог WARNING для criteria=change (доля, напр. 0.1 = 10%) |
+| `THRESHOLD_CRIT_PCT` | `threshold_crit` | Порог CRITICAL для criteria=change (доля, напр. 0.2 = 20%) |
 
 ### Из JSON (`config_json`)
 
@@ -74,6 +77,10 @@
 
 ### 2. Логика алертов
 
+Поддерживаются два критерия формирования алертов (параметр `criteria`):
+
+#### criteria = ci (по умолчанию)
+
 Рассчитывается доверительный интервал для reference-значения:
 ```
 reference_ci = Z * sqrt(reference_cr * (1 - reference_cr) / n_reference)
@@ -85,12 +92,21 @@ is_alert = (current_cr < reference_cr - reference_ci) OR
            (current_cr > reference_cr + reference_ci)
 ```
 
-### 3. Типы алертов
-
 | Метрика | alert_category | Описание |
 |---------|----------------|----------|
 | `previous_cr` | `WARNING` | Изменение относительно прошлой недели |
 | `historical_cr` | `CRITICAL` | Изменение относительно 4-недельного среднего |
+
+#### criteria = change
+
+Алерт срабатывает если абсолютное значение `change_perc` превышает заданный порог:
+```
+is_alert = abs(change_perc) >= threshold_warning
+alert_category = CRITICAL  если abs(change_perc) >= threshold_crit
+                 WARNING   если abs(change_perc) >= threshold_warning
+```
+
+CI рассчитывается и записывается в БД, но не влияет на формирование алерта.
 
 ## Выходные данные
 

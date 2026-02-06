@@ -85,12 +85,30 @@ alert_category = WARNING
 ```
 
 **criteria = change**:
+
+**Алерт срабатывает только если выполнены ОБА условия:**
+
+1. **Превышен threshold изменения:**
+   ```
+   abs(change_perc) >= threshold_warning
+   ```
+
+2. **Текущее значение НЕ в доверительном интервале:**
+   ```
+   (current_value < reference_value - ci) OR
+   (current_value > reference_value + ci)
+   ```
+
+**Результат:**
 ```
-is_alert = abs(change_perc) >= threshold_warning
-alert_category = CRITICAL  если abs(change_perc) >= threshold_crit
-                 WARNING   если abs(change_perc) >= threshold_warning
+is_alert = (abs(change_perc) >= threshold_warning) AND ci_condition
+
+alert_category = CRITICAL  если (abs(change_perc) >= threshold_crit) AND ci_condition
+                 WARNING   если (abs(change_perc) >= threshold_warning) AND ci_condition
+                 NULL      иначе
 ```
-CI рассчитывается и записывается в БД, но не влияет на формирование алерта.
+
+**Эффект:** Отфильтровываются изменения, которые превышают threshold, но находятся в пределах статистической нормы (доверительного интервала).
 
 ### 4. Фильтрация по threshold
 
